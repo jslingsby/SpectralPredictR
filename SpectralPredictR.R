@@ -1,5 +1,5 @@
 #Kyle R Kovach
-#SpectroPredictR
+#SpectralPredictR
 #December 1, 2020
 
 #----Load Libraries----
@@ -45,11 +45,16 @@ for (j in c("asd","sed","sig"))
     
     stopCluster(cl)
     
-    if (j=="asd"||j=="sig"){
-      splice_val=ifelse(j=="asd",c(1000, 1800),c(990, 1900))
+    if (j=="asd"){
       FST=match_sensors(
         FST,
-        splice_at=splice_val
+        splice_at=c(1001,1801)
+      )
+    }
+    if (j=="sig"){
+      FST=match_sensors(
+        FST,
+        splice_at=c(990,1900)
       )
     };FSTdf=data.frame(FST,check.names=FALSE)
     if (!exists('FFO')){FFO=FSTdf[0,]}
@@ -59,7 +64,11 @@ for (j in c("asd","sed","sig"))
 FST_f=data.frame(FSTfinal)
 FST_n=data.frame(FSTfinal_norm)
 
+write.csv(FST_f,"SpectralPredictR_raw_spectra.csv",row.names=FALSE)
+write.csv(FST_n,"SpectralPredictR_VN_jumpcorrected_spectra.csv",row.names=FALSE)
+
 #----Process Spectra, Vector Normalize, and Resample----
+## This assumes all metadata exists only as the left side columns, and that the spectral dataset is consistant and ends the columns.
 headcount=ncol(FST_f)-2151
 specstart=headcount+1
 
@@ -82,9 +91,10 @@ sampledata_head=sampledata[,c(1:headcount)]
 sampledata_5nm_wav=sampledata_wav[,seq_len(ncol(sampledata_wav)) %% 5 == 1]
 sampledata_5nm=cbind(sampledata_head,sampledata_5nm_wav)
 sampledata=sampledata_5nm
+write.csv(sampledata,"SpectralPredictR_5nmresampled_spectra.csv",row.names=FALSE)
 
 #----Predict Traits----
-
+# Choose model directory
 modeldirectory=list.files(path=choose.dir(default="",
                                           caption="Please select main folder containing either fresh or dry models (based on spectra being processed)."),
                           pattern=".csv$",
@@ -116,4 +126,4 @@ predsub=finished_output[,c(1:2,6:7)]
 predspread=pivot_wider(data=predsub,id_cols=sample_name,names_from=modelname,values_from=c("t_mean","t_std"))
 predunlist=as.data.frame(unnest(predspread))
 colnames(predunlist)=sub(".csv", "", colnames(predunlist))
-write.csv(predunlist,"SpectroPredictR_finished_model_output.csv",row.names=FALSE)
+write.csv(predunlist,"SpectralPredictR_trait_output.csv",row.names=FALSE)

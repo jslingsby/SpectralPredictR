@@ -99,9 +99,17 @@ for (j in c("asd","sed","sig"))
     
     stopCluster(cl)
     
-    if (j=="asd"||j=="sig"){
-      splice_val=ifelse(j=="asd",c(1000, 1800),c(990, 1900))
-      FST=match_sensors(FST,splice_at=splice_val)
+    if (j=="asd"){
+      FST=match_sensors(
+        FST,
+        splice_at=c(1001,1801)
+      )
+    }
+    if (j=="sig"){
+      FST=match_sensors(
+        FST,
+        splice_at=c(990,1900)
+      )
     };FSTdf=data.frame(FST,check.names=FALSE)
     if (!exists('FFO')){FFO=FSTdf[0,]}
     FFO=rbind(FFO,FSTdf)
@@ -151,7 +159,7 @@ plot_interactive(FSTfinal,
                  colpalette = function(n) RColorBrewer::brewer.pal(n, "Dark2"),
 )
 
-plot(FSTfinal, ylab = "value", xlab = "band", lty = 1, type = "l")
+plot(FSTfinal, ylab = "Reflectance %", xlab = "Wavelength (nm)", lty = 1, type = "l")
 
 plot_regions(
       FSTfinal,
@@ -163,7 +171,7 @@ plot_regions(
       cex_label = 1,
 )
 
-plot(FSTfinal_norm, ylab = "value", xlab = "band", lty = 1, type = "l")
+plot(FSTfinal_norm, ylab = "Vector Normalized Reflectance %", xlab = "Wavelength (nm)", lty = 1, type = "l")
 
 plot_regions(
       FSTfinal,
